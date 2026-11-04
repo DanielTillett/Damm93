@@ -1,5 +1,5 @@
 /*
- Base95 (printable ASCII) implementation of the Damm error detection
+ Base93 (visible ASCII) implementation of the Damm error detection
  algorithm in JavaScript
 
  Copyright (c) 2026, Daniel Tillett
@@ -7,19 +7,21 @@
  */
 
 /**
- * Every printable ASCII character, space to '~', ordered so that base95 zero
- * is '0' and the digits keep their values. Input is case-sensitive.
+ * Every visible ASCII character except backslash, ordered so that base93 zero
+ * is '0' and the digits keep their values. Space and backslash are excluded,
+ * so a check digit is never invisible or an escape character. Input is
+ * case-sensitive.
  */
 export const ALPHABET =
-  '0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~' + ' !"#$%&\'()*+,-./';
+  '0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~' + '!"#$%&\'()*+,-./';
 
 /** Returned by checkDigit() when the input contains a character outside the alphabet. */
 export const INVALID = null;
 
-const BASE = 95;
+const BASE = 93;
 
 /*
- The quasigroup operation x * y = 2(x - y) mod 95. It has a zero diagonal and
+ The quasigroup operation x * y = 2(x - y) mod 93. It has a zero diagonal and
  is totally anti-symmetric, so every single-character error and adjacent
  transposition is detected.
  */
@@ -30,7 +32,7 @@ function op(x, y) {
 const VALUES = new Map([...ALPHABET].map((char, i) => [char, i]));
 
 /**
- * Returns the value (0-94) of a base95 character, or -1 if it is not printable ASCII.
+ * Returns the value (0-92) of a base93 character, or -1 if it is not in the alphabet.
  * @param {string} char
  * @returns {number}
  */
@@ -39,7 +41,7 @@ export function value(char) {
 }
 
 /**
- * Returns the base95 check digit for a string, or INVALID (null) if the string
+ * Returns the base93 check digit for a string, or INVALID (null) if the string
  * contains a character outside the alphabet.
  * @param {string} code
  * @returns {string | null}

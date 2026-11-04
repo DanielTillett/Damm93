@@ -2,7 +2,7 @@
 <?php
 
 /*
- Command-line interface for the base95 Damm check digit library.
+ Command-line interface for the base93 Damm check digit library.
  Behaves the same as the C version.
 
  Copyright (c) 2026, Daniel Tillett
@@ -11,9 +11,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../src/Damm95.php';
+require_once __DIR__ . '/../src/Damm93.php';
 
-use Damm95\Damm95;
+use Damm93\Damm93;
 
 const VERSION = '1.0.0';
 const EXIT_OK = 0;
@@ -23,9 +23,9 @@ const EXIT_USAGE = 2;
 function usage($out): void
 {
     fwrite($out, <<<'TXT'
-        Usage: damm95 [-a | -c] [code ...]
+        Usage: damm93 [-a | -c] [code ...]
 
-        Calculate or verify base95 Damm check digits. With no codes, codes
+        Calculate or verify base93 Damm check digits. With no codes, codes
         are read from standard input, one per line. Use -- before a code
         that starts with '-'.
 
@@ -34,7 +34,7 @@ function usage($out): void
           -h, --help     show this help
           -V, --version  show the version
 
-        Alphabet: printable ASCII, space to ~ (case-sensitive). Quote codes in the shell.
+        Alphabet: visible ASCII except backslash (case-sensitive). Quote codes in the shell.
         Exit status: 0 success, 1 invalid code or character, 2 usage error
 
         TXT);
@@ -43,28 +43,28 @@ function usage($out): void
 /* Processes one code and returns true if it passed for the selected mode. */
 function process(string $code, string $mode): bool
 {
-    $digit = Damm95::checkDigit($code);
+    $digit = Damm93::checkDigit($code);
 
     switch ($mode) {
         case 'append':
-            if ($digit === Damm95::INVALID) {
-                fwrite(STDERR, "damm95: invalid character in '$code'\n");
+            if ($digit === Damm93::INVALID) {
+                fwrite(STDERR, "damm93: invalid character in '$code'\n");
                 return false;
             }
             echo $code, $digit, "\n";
             return true;
 
         case 'check':
-            return Damm95::isValid($code);
+            return Damm93::isValid($code);
 
         default:
             printf(
-                "Base95 Number: %s\nBase95 Check Digit: %s\nError Check: %d\n",
+                "Base93 Number: %s\nBase93 Check Digit: %s\nError Check: %d\n",
                 $code,
                 $digit ?? 'invalid character',
-                Damm95::isValid($code) ? 1 : 0
+                Damm93::isValid($code) ? 1 : 0
             );
-            return $digit !== Damm95::INVALID;
+            return $digit !== Damm93::INVALID;
     }
 }
 
@@ -93,10 +93,10 @@ function main(array $argv): int
                 return EXIT_OK;
             case '-V':
             case '--version':
-                echo 'damm95 ', VERSION, "\n";
+                echo 'damm93 ', VERSION, "\n";
                 return EXIT_OK;
             default:
-                fwrite(STDERR, "damm95: unknown option '$arg'\n");
+                fwrite(STDERR, "damm93: unknown option '$arg'\n");
                 usage(STDERR);
                 return EXIT_USAGE;
         }

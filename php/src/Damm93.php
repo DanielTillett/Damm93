@@ -1,7 +1,7 @@
 <?php
 
 /*
- Base95 (printable ASCII) implementation of the Damm error detection
+ Base93 (visible ASCII) implementation of the Damm error detection
  algorithm in PHP
 
  Copyright (c) 2026, Daniel Tillett
@@ -10,24 +10,26 @@
 
 declare(strict_types=1);
 
-namespace Damm95;
+namespace Damm93;
 
-final class Damm95
+final class Damm93
 {
-    public const BASE = 95;
+    public const BASE = 93;
 
     /*
-     Every printable ASCII character, space to '~', ordered so that base95
-     zero is '0' and the digits keep their values. Input is case-sensitive.
+     Every visible ASCII character except backslash, ordered so that base93
+     zero is '0' and the digits keep their values. Space and backslash are
+     excluded, so a check digit is never invisible or an escape character.
+     Input is case-sensitive.
      */
-    public const ALPHABET = '0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
-        . ' !"#$%&\'()*+,-./';
+    public const ALPHABET = '0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+        . '!"#$%&\'()*+,-./';
 
     /* Returned by checkDigit() when the input contains a character outside the alphabet. */
     public const INVALID = null;
 
     /*
-     The quasigroup operation x * y = 2(x - y) mod 95. It has a zero diagonal
+     The quasigroup operation x * y = 2(x - y) mod 93. It has a zero diagonal
      and is totally anti-symmetric, so every single-character error and
      adjacent transposition is detected.
      */
@@ -37,7 +39,7 @@ final class Damm95
     }
 
     /**
-     * Returns the value (0-94) of a base95 character, or -1 if it is not printable ASCII.
+     * Returns the value (0-92) of a base93 character, or -1 if it is not in the alphabet.
      */
     public static function value(string $char): int
     {
@@ -45,13 +47,13 @@ final class Damm95
             return -1;
         }
 
-        $byte = ord($char);
+        $value = strpos(self::ALPHABET, $char);
 
-        return ($byte < 32 || $byte > 126) ? -1 : ($byte - 48 + self::BASE) % self::BASE;
+        return $value === false ? -1 : $value;
     }
 
     /**
-     * Returns the base95 check digit for a string, or INVALID (null) if the
+     * Returns the base93 check digit for a string, or INVALID (null) if the
      * string contains a character outside the alphabet.
      */
     public static function checkDigit(string $code): ?string

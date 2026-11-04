@@ -46,9 +46,9 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
       - name: Lint
-        run: php -l php/src/Damm95.php && php -l php/bin/damm95
+        run: php -l php/src/Damm93.php && php -l php/bin/damm93
       - name: Test
-        run: php php/tests/Damm95Test.php
+        run: php php/tests/Damm93Test.php
 
   javascript:
     strategy:

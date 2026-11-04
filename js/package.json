@@ -1,32 +1,32 @@
 {
-  "name": "damm95",
+  "name": "damm93",
   "version": "1.0.0",
-  "description": "Base95 implementation of the Damm check digit algorithm over printable ASCII",
+  "description": "Base93 implementation of the Damm check digit algorithm over visible ASCII",
   "license": "BSD-2-Clause",
   "author": "Daniel Tillett",
-  "homepage": "https://github.com/DanielTillett/Damm95#javascript",
+  "homepage": "https://github.com/DanielTillett/Damm93#javascript",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DanielTillett/Damm95.git",
+    "url": "git+https://github.com/DanielTillett/Damm93.git",
     "directory": "js"
   },
   "bugs": {
-    "url": "https://github.com/DanielTillett/Damm95/issues"
+    "url": "https://github.com/DanielTillett/Damm93/issues"
   },
   "type": "module",
   "exports": {
     ".": {
-      "types": "./damm95.d.ts",
-      "default": "./damm95.js"
+      "types": "./damm93.d.ts",
+      "default": "./damm93.js"
     }
   },
-  "types": "./damm95.d.ts",
+  "types": "./damm93.d.ts",
   "bin": {
-    "damm95": "bin/damm95.js"
+    "damm93": "bin/damm93.js"
   },
   "files": [
-    "damm95.js",
-    "damm95.d.ts",
+    "damm93.js",
+    "damm93.d.ts",
     "bin/"
   ],
   "engines": {
@@ -39,7 +39,7 @@
     "damm",
     "check digit",
     "checksum",
-    "base95",
+    "base93",
     "ascii",
     "error detection"
   ]

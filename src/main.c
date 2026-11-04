@@ -1,5 +1,5 @@
 /*
- Command-line interface for the base95 Damm check digit library.
+ Command-line interface for the base93 Damm check digit library.
 
  Copyright (c) 2026, Daniel Tillett
  SPDX-License-Identifier: BSD-2-Clause
@@ -9,7 +9,7 @@
 #define _POSIX_C_SOURCE 200809L /* fileno, isatty */
 #endif
 
-#include "damm95.h"
+#include "damm93.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,8 +23,8 @@
 #include <unistd.h>
 #endif
 
-#ifndef DAMM95_VERSION
-#define DAMM95_VERSION "1.0.0"
+#ifndef DAMM93_VERSION
+#define DAMM93_VERSION "1.0.0"
 #endif
 
 enum mode { MODE_REPORT, MODE_APPEND, MODE_CHECK };
@@ -32,9 +32,9 @@ enum mode { MODE_REPORT, MODE_APPEND, MODE_CHECK };
 enum exit_status { EXIT_OK = 0, EXIT_INVALID = 1, EXIT_USAGE = 2 };
 
 static void usage(FILE *out) {
-    fputs("Usage: damm95 [-a | -c] [code ...]\n"
+    fputs("Usage: damm93 [-a | -c] [code ...]\n"
           "\n"
-          "Calculate or verify base95 Damm check digits. With no codes, codes\n"
+          "Calculate or verify base93 Damm check digits. With no codes, codes\n"
           "are read from standard input, one per line. Use -- before a code\n"
           "that starts with '-'.\n"
           "\n"
@@ -43,36 +43,36 @@ static void usage(FILE *out) {
           "  -h, --help     show this help\n"
           "  -V, --version  show the version\n"
           "\n"
-          "Alphabet: printable ASCII, space to ~ (case-sensitive). Quote codes in the shell.\n"
+          "Alphabet: visible ASCII except backslash (case-sensitive). Quote codes in the shell.\n"
           "Exit status: 0 success, 1 invalid code or character, 2 usage error\n",
           out);
 }
 
 /* Processes one code and returns true if it passed for the selected mode. */
 static bool process(const char *code, enum mode mode) {
-    char digit = damm95_check_digit(code);
+    char digit = damm93_check_digit(code);
 
     switch (mode) {
     case MODE_APPEND:
-        if (digit == DAMM95_INVALID) {
-            fprintf(stderr, "damm95: invalid character in '%s'\n", code);
+        if (digit == DAMM93_INVALID) {
+            fprintf(stderr, "damm93: invalid character in '%s'\n", code);
             return false;
         }
         printf("%s%c\n", code, digit);
         return true;
 
     case MODE_CHECK:
-        return damm95_is_valid(code);
+        return damm93_is_valid(code);
 
     case MODE_REPORT:
     default:
-        if (digit == DAMM95_INVALID) {
-            printf("Base95 Number: %s\nBase95 Check Digit: invalid character\nError Check: 0\n", code);
+        if (digit == DAMM93_INVALID) {
+            printf("Base93 Number: %s\nBase93 Check Digit: invalid character\nError Check: 0\n", code);
         } else {
-            printf("Base95 Number: %s\nBase95 Check Digit: %c\nError Check: %d\n",
-                   code, digit, damm95_is_valid(code) ? 1 : 0);
+            printf("Base93 Number: %s\nBase93 Check Digit: %c\nError Check: %d\n",
+                   code, digit, damm93_is_valid(code) ? 1 : 0);
         }
-        return digit != DAMM95_INVALID;
+        return digit != DAMM93_INVALID;
     }
 }
 
@@ -131,10 +131,10 @@ int main(int argc, char **argv) {
             usage(stdout);
             return EXIT_OK;
         } else if (strcmp(arg, "-V") == 0 || strcmp(arg, "--version") == 0) {
-            puts("damm95 " DAMM95_VERSION);
+            puts("damm93 " DAMM93_VERSION);
             return EXIT_OK;
         } else {
-            fprintf(stderr, "damm95: unknown option '%s'\n", arg);
+            fprintf(stderr, "damm93: unknown option '%s'\n", arg);
             usage(stderr);
             return EXIT_USAGE;
         }

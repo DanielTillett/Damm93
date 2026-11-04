@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /*
- Command-line interface for the base95 Damm check digit library.
+ Command-line interface for the base93 Damm check digit library.
  Behaves the same as the C version.
 
  Copyright (c) 2026, Daniel Tillett
@@ -9,16 +9,16 @@
  */
 
 import { readFileSync } from 'node:fs';
-import { INVALID, checkDigit, isValid } from '../damm95.js';
+import { INVALID, checkDigit, isValid } from '../damm93.js';
 
 const VERSION = '1.0.0';
 const EXIT_OK = 0;
 const EXIT_INVALID = 1;
 const EXIT_USAGE = 2;
 
-const USAGE = `Usage: damm95 [-a | -c] [code ...]
+const USAGE = `Usage: damm93 [-a | -c] [code ...]
 
-Calculate or verify base95 Damm check digits. With no codes, codes
+Calculate or verify base93 Damm check digits. With no codes, codes
 are read from standard input, one per line. Use -- before a code
 that starts with '-'.
 
@@ -27,7 +27,7 @@ that starts with '-'.
   -h, --help     show this help
   -V, --version  show the version
 
-Alphabet: printable ASCII, space to ~ (case-sensitive). Quote codes in the shell.
+Alphabet: visible ASCII except backslash (case-sensitive). Quote codes in the shell.
 Exit status: 0 success, 1 invalid code or character, 2 usage error
 `;
 
@@ -38,7 +38,7 @@ function processCode(code, mode) {
   switch (mode) {
     case 'append':
       if (digit === INVALID) {
-        process.stderr.write(`damm95: invalid character in '${code}'\n`);
+        process.stderr.write(`damm93: invalid character in '${code}'\n`);
         return false;
       }
       process.stdout.write(`${code}${digit}\n`);
@@ -49,7 +49,7 @@ function processCode(code, mode) {
 
     default:
       process.stdout.write(
-        `Base95 Number: ${code}\nBase95 Check Digit: ${digit ?? 'invalid character'}\nError Check: ${isValid(code) ? 1 : 0}\n`,
+        `Base93 Number: ${code}\nBase93 Check Digit: ${digit ?? 'invalid character'}\nError Check: ${isValid(code) ? 1 : 0}\n`,
       );
       return digit !== INVALID;
   }
@@ -72,10 +72,10 @@ function main(argv) {
       process.stdout.write(USAGE);
       return EXIT_OK;
     } else if (arg === '-V' || arg === '--version') {
-      process.stdout.write(`damm95 ${VERSION}\n`);
+      process.stdout.write(`damm93 ${VERSION}\n`);
       return EXIT_OK;
     } else {
-      process.stderr.write(`damm95: unknown option '${arg}'\n${USAGE}`);
+      process.stderr.write(`damm93: unknown option '${arg}'\n${USAGE}`);
       return EXIT_USAGE;
     }
   }

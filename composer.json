@@ -1,15 +1,15 @@
 {
-    "name": "danieltillett/damm95",
-    "description": "Base95 implementation of the Damm check digit algorithm over printable ASCII",
+    "name": "danieltillett/damm93",
+    "description": "Base93 implementation of the Damm check digit algorithm over visible ASCII",
     "type": "library",
     "keywords": [
         "damm",
         "check digit",
         "checksum",
-        "base95",
+        "base93",
         "error detection"
     ],
-    "homepage": "https://github.com/DanielTillett/Damm95",
+    "homepage": "https://github.com/DanielTillett/Damm93",
     "license": "BSD-2-Clause",
     "authors": [
         {
@@ -17,21 +17,21 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/DanielTillett/Damm95/issues",
-        "source": "https://github.com/DanielTillett/Damm95"
+        "issues": "https://github.com/DanielTillett/Damm93/issues",
+        "source": "https://github.com/DanielTillett/Damm93"
     },
     "require": {
         "php": ">=7.4"
     },
     "autoload": {
         "psr-4": {
-            "Damm95\\": "php/src/"
+            "Damm93\\": "php/src/"
         }
     },
     "bin": [
-        "php/bin/damm95"
+        "php/bin/damm93"
     ],
     "scripts": {
-        "test": "php php/tests/Damm95Test.php"
+        "test": "php php/tests/Damm93Test.php"
     }
 }
