@@ -1,0 +1,142 @@
+# damm95: printable ASCII Damm check digits
+
+The [Damm algorithm](https://en.wikipedia.org/wiki/Damm_algorithm) is a check digit algorithm that detects every single-character error and every adjacent transposition. Prepending leading zeros does not change the check digit.
+
+**damm95** applies it to all 95 printable ASCII characters, from space to `~`, with matching implementations in C, PHP and JavaScript. Each one is a library plus a command-line tool, and all three give identical output.
+
+The alphabet runs from `0` to `~`, then space to `/`, so base95 zero is `0` and the digits keep their face values:
+
+```
+0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !"#$%&'()*+,-./
+```
+
+Input is **case-sensitive**. Control characters (tab, newline, `DEL`) and anything outside ASCII are invalid.
+
+| Implementation | Location | Requires |
+| --- | --- | --- |
+| C | [`include/`](include), [`src/`](src) | C99 compiler, CMake 3.16+ |
+| PHP | [`php/`](php) | PHP 7.4+ |
+| JavaScript | [`js/`](js) | Node.js 20+, or any modern browser |
+
+## Which version should I use?
+
+| | [damm32](https://github.com/DanielTillett/Damm32) | [damm64](https://github.com/DanielTillett/Damm64) | damm95 |
+| --- | --- | --- | --- |
+| Alphabet | Lowercase letters and digits without look-alikes, plus `*` | base64url | All printable ASCII |
+| Bits per character | 5 | 6 | ~6.6 |
+| Case | Insensitive | Sensitive | Sensitive |
+| Best for | Codes people read and type | IDs and tokens that are copied, or used in URLs | Compact machine-to-machine strings |
+
+Things to know before using damm95:
+
+- **The check digit can be any printable character**, including a space, a quote, a backslash or `$`. Quote codes on the command line (`damm95 -a 'Hello world'`) and escape them in JSON, SQL and shell scripts.
+- **A check digit of space is easy to lose.** Anything that trims whitespace will silently remove it, and the code then fails validation.
+- **Damm only guarantees single-character errors and adjacent swaps.** That's ideal for human typing errors. For data corrupted in transit, a CRC detects far more kinds of damage.
+
+## How it works
+
+The 95 × 95 quasigroup is not stored as a table. It is computed from one formula:
+
+> x ∗ y = 2 · (x − y) mod 95
+
+Subtraction puts zeros on the diagonal, so a correct code ends in `0`. Because 95 is odd, 2 and 2² − 2 are both invertible modulo 95, which makes the operation totally anti-symmetric, so every adjacent transposition is detected. The same formula works for any odd base. The tests check every property exhaustively, all 95³ combinations, in all three languages.
+
+## C
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+```
+
+```bash
+cmake --build build
+```
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+```bash
+cmake --install build
+```
+
+Without CMake:
+
+```bash
+cc -std=c99 -O2 -Iinclude src/damm95.c src/main.c -o damm95
+```
+
+```c
+#include "damm95.h"
+
+char digit = damm95_check_digit("Hello");  /* '8', or DAMM95_INVALID ('\0') */
+bool ok    = damm95_is_valid("Hello8");    /* true */
+int value  = damm95_value('H');            /* 0-94, or -1 if not printable ASCII */
+```
+
+## Command-line usage
+
+All three implementations share the same interface:
+
+```
+damm95 [-a | -c] [code ...]
+
+  -a, --append   print each code with its check digit appended
+  -c, --check    print nothing; exit 0 only if every code is valid
+  -h, --help     show this help
+  -V, --version  show the version
+```
+
+With no codes on the command line, codes are read from standard input, **one per line**, so codes may contain spaces. Put `--` before a code that starts with `-`. Exit status is 0 on success, 1 if a code is invalid or contains a character outside the alphabet, and 2 on a usage error.
+
+```
+$ damm95 Hello
+Base95 Number: Hello
+Base95 Check Digit: 8
+Error Check: 0
+
+$ damm95 -a 'Hello world'
+Hello world\
+
+$ damm95 -c 'Hello8' && echo valid
+valid
+```
+
+## PHP
+
+```bash
+composer require danieltillett/damm95
+```
+
+```php
+use Damm95\Damm95;
+
+Damm95::checkDigit('Hello');  // '8', or Damm95::INVALID (null)
+Damm95::isValid('Hello8');    // true
+Damm95::value('H');           // 0-94, or -1 if not printable ASCII
+```
+
+The command-line tool is installed as `vendor/bin/damm95`. Without Composer, `require` [`php/src/Damm95.php`](php/src/Damm95.php) directly. Run the tests with `php php/tests/Damm95Test.php`.
+
+## JavaScript
+
+```bash
+npm install damm95
+```
+
+```js
+import { checkDigit, isValid, value, INVALID } from 'damm95';
+
+checkDigit('Hello');  // '8', or INVALID (null)
+isValid('Hello8');    // true
+value('H');           // 0-94, or -1 if not printable ASCII
+```
+
+The package is a dependency-free ES module with TypeScript declarations, and includes the `damm95` command (`npx damm95`). Run the tests with `npm test --prefix js`.
+
+## Testing
+
+[`tests/vectors.txt`](tests/vectors.txt) holds every one- and two-character code plus random longer and invalid codes, with their check digits, generated by an independent Python reference implementation. Each line is `code<TAB>digit`; an empty digit means invalid, and lines without a tab are comments (codes can start with `#`, so `#` cannot mark a comment). The C, PHP and JavaScript suites all check against it, and CI runs them on Linux, macOS and Windows (C), PHP 7.4–8.4 and Node.js 20–24.
+
+## Licence
+
+BSD 2-Clause. See [LICENSE](LICENSE).

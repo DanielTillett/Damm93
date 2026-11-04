@@ -1,0 +1,46 @@
+{
+  "name": "damm95",
+  "version": "1.0.0",
+  "description": "Base95 implementation of the Damm check digit algorithm over printable ASCII",
+  "license": "BSD-2-Clause",
+  "author": "Daniel Tillett",
+  "homepage": "https://github.com/DanielTillett/Damm95#javascript",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanielTillett/Damm95.git",
+    "directory": "js"
+  },
+  "bugs": {
+    "url": "https://github.com/DanielTillett/Damm95/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./damm95.d.ts",
+      "default": "./damm95.js"
+    }
+  },
+  "types": "./damm95.d.ts",
+  "bin": {
+    "damm95": "bin/damm95.js"
+  },
+  "files": [
+    "damm95.js",
+    "damm95.d.ts",
+    "bin/"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "damm",
+    "check digit",
+    "checksum",
+    "base95",
+    "ascii",
+    "error detection"
+  ]
+}

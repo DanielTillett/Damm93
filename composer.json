@@ -1,0 +1,37 @@
+{
+    "name": "danieltillett/damm95",
+    "description": "Base95 implementation of the Damm check digit algorithm over printable ASCII",
+    "type": "library",
+    "keywords": [
+        "damm",
+        "check digit",
+        "checksum",
+        "base95",
+        "error detection"
+    ],
+    "homepage": "https://github.com/DanielTillett/Damm95",
+    "license": "BSD-2-Clause",
+    "authors": [
+        {
+            "name": "Daniel Tillett"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/DanielTillett/Damm95/issues",
+        "source": "https://github.com/DanielTillett/Damm95"
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Damm95\\": "php/src/"
+        }
+    },
+    "bin": [
+        "php/bin/damm95"
+    ],
+    "scripts": {
+        "test": "php php/tests/Damm95Test.php"
+    }
+}

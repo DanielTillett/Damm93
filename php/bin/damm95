@@ -1,0 +1,130 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ Command-line interface for the base95 Damm check digit library.
+ Behaves the same as the C version.
+
+ Copyright (c) 2026, Daniel Tillett
+ SPDX-License-Identifier: BSD-2-Clause
+ */
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../src/Damm95.php';
+
+use Damm95\Damm95;
+
+const VERSION = '1.0.0';
+const EXIT_OK = 0;
+const EXIT_INVALID = 1;
+const EXIT_USAGE = 2;
+
+function usage($out): void
+{
+    fwrite($out, <<<'TXT'
+        Usage: damm95 [-a | -c] [code ...]
+
+        Calculate or verify base95 Damm check digits. With no codes, codes
+        are read from standard input, one per line. Use -- before a code
+        that starts with '-'.
+
+          -a, --append   print each code with its check digit appended
+          -c, --check    print nothing; exit 0 only if every code is valid
+          -h, --help     show this help
+          -V, --version  show the version
+
+        Alphabet: printable ASCII, space to ~ (case-sensitive). Quote codes in the shell.
+        Exit status: 0 success, 1 invalid code or character, 2 usage error
+
+        TXT);
+}
+
+/* Processes one code and returns true if it passed for the selected mode. */
+function process(string $code, string $mode): bool
+{
+    $digit = Damm95::checkDigit($code);
+
+    switch ($mode) {
+        case 'append':
+            if ($digit === Damm95::INVALID) {
+                fwrite(STDERR, "damm95: invalid character in '$code'\n");
+                return false;
+            }
+            echo $code, $digit, "\n";
+            return true;
+
+        case 'check':
+            return Damm95::isValid($code);
+
+        default:
+            printf(
+                "Base95 Number: %s\nBase95 Check Digit: %s\nError Check: %d\n",
+                $code,
+                $digit ?? 'invalid character',
+                Damm95::isValid($code) ? 1 : 0
+            );
+            return $digit !== Damm95::INVALID;
+    }
+}
+
+function main(array $argv): int
+{
+    $mode = 'report';
+    $args = array_slice($argv, 1);
+
+    while ($args !== [] && strlen($args[0]) > 1 && $args[0][0] === '-') {
+        $arg = array_shift($args);
+
+        switch ($arg) {
+            case '--':
+                break 2;
+            case '-a':
+            case '--append':
+                $mode = 'append';
+                break;
+            case '-c':
+            case '--check':
+                $mode = 'check';
+                break;
+            case '-h':
+            case '--help':
+                usage(STDOUT);
+                return EXIT_OK;
+            case '-V':
+            case '--version':
+                echo 'damm95 ', VERSION, "\n";
+                return EXIT_OK;
+            default:
+                fwrite(STDERR, "damm95: unknown option '$arg'\n");
+                usage(STDERR);
+                return EXIT_USAGE;
+        }
+    }
+
+    if ($args === []) {
+        if (stream_isatty(STDIN)) {
+            usage(STDERR);
+            return EXIT_USAGE;
+        }
+        $args = array_values(array_filter(
+            preg_split('/\r?\n/', (string) stream_get_contents(STDIN)),
+            static function (string $line): bool {
+                return $line !== '';
+            }
+        ));
+        if ($args === []) {
+            usage(STDERR);
+            return EXIT_USAGE;
+        }
+    }
+
+    $ok = true;
+    foreach ($args as $code) {
+        $ok = process($code, $mode) && $ok;
+    }
+
+    return $ok ? EXIT_OK : EXIT_INVALID;
+}
+
+exit(main($argv));
